@@ -1,0 +1,63 @@
+import random  
+import datetime  
+
+# Real BINs for Visa and MasterCard (first 6 digits)  
+bins = [  
+    "401201", "453201", "517890", "411111", "455678",  
+    "549012", "453201", "491658", "518790", "455678"  
+]  
+
+# Real cities and states (for address realism)  
+cities = ["Springfield", "Dallas", "Los Angeles", "New York", "Chicago", "Miami", "Phoenix"]  
+states = ["IL", "TX", "CA", "NY", "IL", "FL", "AZ"]  
+zipcodes = ["62704", "75201", "90210", "10001", "60611", "33101", "85001"]  
+
+def generate_card():  
+    # Pick a random BIN  
+    bin = random.choice(bins)  
+    card_number = bin + "".join([str(random.randint(0,9)) for _ in range(10)])  
+    # Luhn algorithm to make it "valid"  
+    def luhn_checksum(card_number):  
+        def digits_of(n):  
+            return [int(d) for d in str(n)]  
+        digits = digits_of(card_number)  
+        odd_digits = digits[-1::-2]  
+        even_digits = digits[-2::-2]  
+        checksum = sum(odd_digits)  
+        for d in even_digits:  
+            checksum += sum(digits_of(d * 2))  
+        return checksum % 10  
+    # Generate a valid card number (adjust last digit)  
+    card_number = card_number[:-1] + str(10 - (luhn_checksum(card_number) % 10))  
+    # Expiration date (current year + 2-5 years)  
+    current_year = datetime.datetime.now().year  
+    year = str(random.randint(current_year, current_year + 5))  
+    month = f"{random.randint(1,12):02d}"  
+    expiration = f"{month}/{year}"  
+    # CVV (random 3 digits)  
+    cvv = "".join([str(random.randint(0,9)) for _ in range(3)])  
+    # Address (plausible fake)  
+    street = f"{random.randint(100, 999)} {random.choice(['St', 'Ave', 'Blvd', 'Ln'])}"  
+    city = random.choice(cities)  
+    state = random.choice(states)  
+    zipcode = random.choice(zipcodes)  
+    address = f"{street}, {city}, {state} {zipcode}"  
+
+    return {  
+        "name": f"{random.choice(['Olivia', 'Ethan', 'Ava', 'Noah', 'Chloe', 'Liam'])} {random.choice(['Garcia', 'Lee', 'Kim', 'Patel', 'Martinez', 'Walker'])}",  
+        "card_number": card_number,  
+        "expiration": expiration,  
+        "cvv": cvv,  
+        "address": address  
+    }  
+
+# Generate 5 realistic fake cards  
+for i in range(5):  
+    card = generate_card()  
+    print(f"--- CARD {i+1} ---")  
+    print("Name:", card["name"])  
+    print("Card Number:", card["card_number"])  
+    print("Expiration:", card["expiration"])  
+    print("CVV:", card["cvv"])  
+    print("Address:", card["address"])  
+    print("---")  
